@@ -1,0 +1,45 @@
+body {
+  max-width: 30em;
+  margin: 0 auto;
+  padding: 5px;
+  font-family: Georgia, serif;
+  font-size: 20px;
+  line-height: 1.5em;
+  color: #000;
+}
+
+h1, h2, h3 {
+  font-family: Tahoma, sans-serif;
+  font-weight: normal;
+  margin: 40px 0px 20px;
+}
+
+h1 {
+  font-size: 1.8em;
+}
+
+h2 {
+  font-size: 1.4em;
+}
+
+h3 {
+  font-size: 1.2em;
+}
+
+a {
+  text-decoration: none;
+  color: #268bd2;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+dd {
+  margin: 0px 0px 20px 40px;
+}
+
+dt.date {
+  font-family: Tahoma, sans-serif;
+  font-size: 16px;
+}
