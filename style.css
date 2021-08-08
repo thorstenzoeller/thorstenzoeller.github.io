@@ -43,3 +43,21 @@ dt.date {
   font-family: Tahoma, sans-serif;
   font-size: 0.9em;
 }
+
+pre code {
+  display: block;
+  padding: 0 5px 0 5px;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8em;
+  border: 1px solid #999;
+  border-radius: 2px;
+  background-color: #eee;
+  white-space: pre-line;
+}
+
+em {
+  font-style: italic;
+}
