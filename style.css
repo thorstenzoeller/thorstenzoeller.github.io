@@ -73,3 +73,43 @@ q::before {
 q::after {
   content: close-quote;
 }
+
+dd p:first-child {
+  margin: 0 0 20px 0;
+}
+
+dd p:last-child {
+  margin: 20px 0 0 0;
+}
+
+dd p:only-child {
+  margin: 0;
+}
+
+dd figure.quote {
+  margin: 0;
+}
+
+figure.quote figcaption {
+  margin: 0 0 0 20px;
+}
+
+figure.quote figcaption::before {
+  content: "– ";
+}
+
+figure.quote blockquote {
+  margin: 0;
+}
+
+figure.quote blockquote::before {
+  content: open-quote;
+}
+
+figure.quote blockquote::after {
+  content: close-quote;
+}
+
+figure.quote blockquote {
+  quotes: "“" "”" "‘" "’";
+}
