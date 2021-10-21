@@ -113,3 +113,9 @@ figure.quote blockquote::after {
 figure.quote blockquote {
   quotes: "“" "”" "‘" "’";
 }
+
+sup {
+  vertical-align: super;
+  line-height: 0;
+  font-size: 0.8em;
+}
