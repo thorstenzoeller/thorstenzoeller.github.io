@@ -160,13 +160,11 @@
         <p>Two very convenient shell aliases for copying the primary X selection
         to the system clipboard and vice versa:</p>
         <pre><code>alias primary2clip='xsel -p | xsel -i -b'
-          alias clip2primary='xsel -b | xsel -i -p'
-        </code></pre>
+alias clip2primary='xsel -b | xsel -i -p'</code></pre>
 
         <p>Alternatively, using <em>xclip</em> instead of <em>xsel</em>:</p>
         <pre><code>alias primary2clip='xclip -o -selection primary | xclip -i -selection clipboard'
-          alias clip2primary='xclip -o -selection clipboard | xclip -i -selection primary'
-        </code></pre>
+alias clip2primary='xclip -o -selection clipboard | xclip -i -selection primary'</code></pre>
 
         <p>See <a href="https://shallowsky.com/blog/linux/x-selection.html">X is
         for the X Selection: Copy and Paste on Linux (Shallow Thoughts)</a> for

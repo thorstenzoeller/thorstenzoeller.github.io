@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Installation and Setup of the RainLoop Webmail Client on OpenBSD |
+    Thorsten Zöller</title>
+    <meta name="description" content="Installation and setup of the RainLoop
+    webmail client on OpenBSD for accessing a Posteo e-mail account." />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <link href="/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header>
+      <h1><a href="/">Thorsten Zöller</a></h1>
+    </header>
+
+    <h2>Installation and Setup of the RainLoop Webmail Client on OpenBSD</h2>
+
+    <div class="date">2021-12-22</div>
+
+    <p><a href="https://www.rainloop.net/">RainLoop</a> is a modern, simple and
+    rather lightweight webmail client.  This article describes its installation
+    and setup on a local OpenBSD machine and the configuration necessary for
+    accessing a <a href="https://posteo.de/en">Posteo</a> e-mail account.</p>
+
+    <p>Tested with OpenBSD 6.9, PHP 8.0 and RainLoop 1.16.0.</p>
+
+    <h3>Prerequisites</h3>
+
+    <p>On a default OpenBSD installation, only a few things are required in
+    order to get RainLoop set up and running:</p>
+
+    <ul>
+      <li>
+        <p><b>Web server</b>.  Since we are on OpenBSD, we will be using <a
+        href="https://man.openbsd.org/httpd.8">httpd(8)</a>.</p>
+      </li>
+
+      <li>
+        <p><b>PHP</b>.  In addition to the extensions contained in the base
+        installation, only PHP-cURL is required, and optionally PHP-PDO for
+        contacts.</p>
+      </li>
+    </ul>
+
+    <p>No database is required for the core functionality; it is only needed for
+    storing contacts, which is optional.</p>
+
+    <h3>Installation and Setup</h3>
+
+    <h4>httpd</h4>
+
+    <p>Create an entry in <code>/etc/httpd.conf</code> for a HTTP server
+    listening on <code>localhost:8080</code> (of course, any other port can be
+    specified):</p>
+
+    <pre><code>server "default" {
+  listen on "127.0.0.1" port 8080
+  log {
+    access "default-access.log"
+    error "default-error.log"
+  }
+  root "/rainloop"
+  directory index index.php
+  location "/data/*" { block }
+  location "*.php" {
+    fastcgi socket "/run/php-fpm.sock"
+  }
+}</pre></code>
+
+    <p>Here, it is assumed that RainLoop will be installed in
+    <code>/var/www/rainloop</code>, which therefore needs to be set as the
+    document root for the server.  Also, web access to the <code>data</code>
+    subdirectory must be blocked.</p>
+
+    <p>Start <a href="https://man.openbsd.org/httpd.8">httpd(8)</a> unless
+    it is already running:</p>
+
+    <pre><code>$ doas rcctl enable httpd
+$ doas rcctl start httpd</code></pre>
+
+    Otherwise, simply restart it:
+
+    <pre><code>$ doas rcctl restart httpd</code></pre>
+
+    <h4>PHP</h4>
+
+    <p>Install <a href="https://man.openbsd.org/php.1">php(1)</a> unless already
+    done:</p>
+
+    <pre><code>$ doas pkg_add php</pre></code>
+
+    <p>Start the PHP FastCGI Process Manager (PHP-FPM):</p>
+
+    <pre><code>$ doas rcctl enable php80_fpm
+$ doas rcctl start php80_fpm</code></pre>
+
+    <p>Install the PHP-cURL extension and make it known to PHP:
+
+    <pre><code>$ doas pkg_add php-curl
+$ doas ln -sf /etc/php-8.0.sample/curl.ini /etc/php-8.0/</code></pre>
+
+    <p>Optionally, install the corresponding PHP-PDO extension for the database
+    to be used (in this case SQLite; other options are MySQL and PostgreSQL) and
+    make it known to PHP:</p>
+
+    <pre><code>$ doas pkg_add php-pdo_sqlite
+$ doas ln -sf /etc/php-8.0.sample/pdo_sqlite.ini /etc/php-8.0/</code></pre>
+
+    <h4>RainLoop</h4>
+
+    <p>Create a directory for RainLoop under <code>/var/www</code>:</p>
+
+    <pre><code>$ doas mkdir /var/www/rainloop</pre></code>
+
+    <p>Get the latest version of the <a
+    href="https://www.rainloop.net/repository/webmail/rainloop-community-latest.zip">RainLoop
+    Community edition</a> and unzip it in <code>/var/www/rainloop</code>:</p>
+
+    <pre><code>$ doas mkdir /var/www/rainloop
+$ cd /var/www/rainloop
+$ doas ftp https://www.rainloop.net/repository/webmail/rainloop-community-latest.zip
+$ doas unzip rainloop-community-latest.zip
+$ doas rm rainloop-community-latest.zip</pre></code>
+
+    <p>Set the owner of the <code>data</code> subdirectory to
+    &ldquo;www&rdquo;:</p>
+
+    <pre><code>$ doas chown -R www data</pre></code>
+
+    <p>Finally, copy <code>/etc/resolv.conf</code> to <code>/var/www</code>
+    (otherwise, the domain names of the mail servers may not get resolved to
+    their corresponding IP addresses):</p>
+
+    <pre><code>$ mkdir -p /var/www/etc
+$ doas cp /etc/resolv.conf /var/www/etc/resolv.conf</pre></code>
+
+    <p>RainLoop can then be accessed via the URL <code>localhost:8080</code>,
+    and it can be configured in the admin panel which can be accessed via
+    <code>localhost:8080?admin</code>.</p>
+
+    <h4>Accessing a Posteo E-Mail Account</h4>
+
+    <p>Access to a <a href="https://posteo.de/en">Posteo</a> e-mail account can
+    be set up by creating the file
+    <code>/var/www/rainloop/data/_data_/_default_/domains/posteo.de.ini</code>
+    with the following contents:</p>
+
+    <pre><code>imap_host = "posteo.de"
+imap_port = 993
+imap_secure = "SSL"
+imap_short_login = Off
+sieve_use = Off
+sieve_allow_raw = Off
+sieve_host = ""
+sieve_port = 4190
+sieve_secure = "None"
+smtp_host = "posteo.de"
+smtp_port = 587
+smtp_secure = "TLS"
+smtp_short_login = Off
+smtp_auth = On
+smtp_php_mail = Off</code></pre>
+
+    <p>Alternatively, the account can be set up via the admin panel.</p>
+
+    <h3>References</h3>
+
+    <ul>
+      <li>
+        <p><a href="https://www.rainloop.net/docs/">Documentation on the
+        RainLoop website</a></p>
+      </li>
+      <li>
+        <p><a
+        href="https://dev.to/nabbisen/rainloop-webmail-on-openbsd-installation-1hfg">Rainloop
+        Webmail on OpenBSD: Installation</a></p>
+      </li>
+      <li>
+        <p><a href="https://brank.me/rainloop-OpenBSD.html">Rainloop And
+        OpenBSD</a></p>
+      </li>
+    </ul>
+
+  </body>
+</html>
